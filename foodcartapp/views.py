@@ -91,13 +91,12 @@ def register_order(request):
                 count=item['quantity'],
                 order=order,
             )
-        
+
         order_to_serialize = order.__dict__
         order_to_serialize['phonenumber'] = data['phonenumber']
 
         serializer = OrderSerializer(data=order_to_serialize)
         if serializer.is_valid():
-            serializer.save()
             return Response(
                 serializer.data,
                 status=status.HTTP_200_OK,
