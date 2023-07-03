@@ -1,17 +1,12 @@
 from django.http import JsonResponse
+from django.db import transaction
 from django.templatetags.static import static
-import json
-from .models import (
-    Order,
-    OrderItem,
-    Product,
-)
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
-from phonenumbers import parse as phone_parse, is_possible_number
+
+from .models import Order, OrderItem, Product
 from .serializers import OrderDeserializer, OrderSerializer
-from django.db import transaction
 
 
 def banners_list_api(request):
@@ -119,6 +114,3 @@ def register_order(request):
             {'error': 'bad request'},
             status=status.HTTP_200_OK,
         )
-
-    # TODO это лишь заглушка
-    return JsonResponse({})

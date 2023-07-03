@@ -1,21 +1,18 @@
-import requests
 import os
-
+import requests
 from django import forms, setup
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth import views as auth_views, authenticate, login
+from django.db.models import F
 from environs import Env
-from django.contrib.auth import authenticate, login
-from django.contrib.auth import views as auth_views
 from sql_util.utils import SubquerySum
 from geopy import distance
 
-
-from foodcartapp.models import Product, Restaurant, Order, OrderItem
+from foodcartapp.models import Product, Restaurant, Order
 from geo_data.models import GeoData
-from django.db.models import F
 
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'star_burger.settings'
@@ -152,10 +149,16 @@ def view_orders(request):
                     restaurant_coordinates = fetch_coordinates(
                         yandex_api_key, menu_item.restaurant.address
                     )
-                    distance_restaurant_order = distance.distance(
-                        restaurant_coordinates[::-1],
-                        order_coordinates[::-1],
-                    ) if order_coordinates and restaurant_coordinates else None
+                    if order_coordinates and restaurant_coordinates:
+                        if restaurant_coordinates != order_coordinates:
+                            distance_restaurant_order = distance.distance(
+                                restaurant_coordinates[::-1],
+                                order_coordinates[::-1],
+                            )
+                        else:
+                            distance_restaurant_order = -1
+                    else:
+                        distance_restaurant_order = 0
 
                     order_restaurants.add((
                         menu_item.restaurant,
@@ -167,7 +170,6 @@ def view_orders(request):
             key=lambda restaurant: restaurant[1] if restaurant[1] else 0
         )
         order.restaurants = order_restaurants
-
 
     orders.annotate(
         cost=SubquerySum(F('products__previous_price')*F('products__count')),
