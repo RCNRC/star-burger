@@ -227,7 +227,7 @@ class OrderItem(models.Model):
     previous_price = models.DecimalField(
         verbose_name='прежняя цена',
         decimal_places=2,
-        max_digits=34,
+        max_digits=7,
         validators=[MinValueValidator(0)],
     )
     count = models.IntegerField(
