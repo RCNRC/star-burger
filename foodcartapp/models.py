@@ -139,7 +139,7 @@ class Order(models.Model):
 
     ONLINE = 'ON'
     OFFLINE = 'OF'
-    PAYMENT_WAYS = [
+    PAYMENT_METHODS = [
         (ONLINE, 'Онлайн'),
         (OFFLINE, 'Наличными'),
     ]
@@ -201,10 +201,10 @@ class Order(models.Model):
         blank=True,
     )
 
-    payment_way = models.CharField(
+    payment_method = models.CharField(
         verbose_name='способ оплаты',
         max_length=2,
-        choices=PAYMENT_WAYS,
+        choices=PAYMENT_METHODS,
         default=ONLINE,
         db_index=True,
     )
