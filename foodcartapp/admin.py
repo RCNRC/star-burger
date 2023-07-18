@@ -123,7 +123,7 @@ class OrderAdmin(admin.ModelAdmin):
 
     def response_change(self, request, obj):
         res = super().response_post_save_change(request, obj)
-        if obj.selected_reustaurant and obj.status == 'WM':
+        if obj.selected_restaurant and obj.status == 'WM':
             obj.status = 'WR'
             obj.save()
 
