@@ -240,8 +240,6 @@ class OrderItem(models.Model):
         verbose_name='заказ',
         related_name='products',
         on_delete=models.CASCADE,
-        null=True,
-        blank=True,
     )
 
     def __str__(self):
