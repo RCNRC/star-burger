@@ -69,8 +69,6 @@ def register_order(request):
     deserializer = OrderDeserializer(data=data)
     deserializer.is_valid(raise_exception=True)
 
-    print(data)
-
     try:
         order = Order.objects.create(
             address=data['address'],
@@ -108,8 +106,7 @@ def register_order(request):
             {'error': f'products: Invalid primary key {item["product"]}'},
             status=status.HTTP_200_OK,
         )
-    except Exception as exception:
-        print(exception)
+    except Exception:
         return Response(
             {'error': 'bad request'},
             status=status.HTTP_200_OK,

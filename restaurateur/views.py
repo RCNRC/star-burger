@@ -104,7 +104,6 @@ def view_restaurants(request):
 def fetch_coordinates(apikey, address):
     try:
         geo_data = GeoData.objects.get(address=address)
-        print(geo_data.created_at)
         lon = geo_data.longitude
         lat = geo_data.latitude
     except GeoData.DoesNotExist:
