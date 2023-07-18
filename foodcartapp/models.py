@@ -187,7 +187,7 @@ class Order(models.Model):
         db_index=True,
     )
 
-    phoned_at = models.DateTimeField(
+    called_at = models.DateTimeField(
         verbose_name='время звонка',
         db_index=True,
         null=True,

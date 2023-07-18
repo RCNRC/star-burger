@@ -36,13 +36,13 @@
           <td>{{ item.phonenumber }}</td>
           <td>{{ item.address }}</td>
           <td>{{ item.comment }}</td>
-          {% if item.reustaurant %}
+          {% if item.selected_restaurant %}
             <td>
               <details>
-                <summary>Готовит {{ item.reustaurant }}</summary>
-                Название: {{ item.reustaurant.name }} <br/>
-                Адрес: {{ item.reustaurant.address }} <br/>
-                Контактный телефон: {{ item.reustaurant.contact_phone }} <br/>
+                <summary>Готовит {{ item.selected_restaurant }}</summary>
+                Название: {{ item.selected_restaurant.name }} <br/>
+                Адрес: {{ item.selected_restaurant.address }} <br/>
+                Контактный телефон: {{ item.selected_restaurant.contact_phone }} <br/>
               </details>
             </td>
           {% else %}
