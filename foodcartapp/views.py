@@ -69,7 +69,6 @@ def register_order(request):
     deserializer = OrderDeserializer(data=data)
     deserializer.is_valid(raise_exception=True)
     order = deserializer.save()
-    print('AAA')
 
     try:
         for item in data['products']:
@@ -83,10 +82,7 @@ def register_order(request):
                 previous_price=product.price,
             )
 
-        order_to_serialize = order.__dict__
-        order_to_serialize['phonenumber'] = data['phonenumber']
-
-        serializer = OrderSerializer(data=order_to_serialize)
+        serializer = OrderSerializer(data=order)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Exception:
