@@ -166,7 +166,7 @@ class Order(models.Model):
         db_index=True,
     )
 
-    reustaurant = models.ForeignKey(
+    selected_reustaurant = models.ForeignKey(
         Restaurant,
         related_name='reustaurant_items',
         verbose_name="ресторан",
