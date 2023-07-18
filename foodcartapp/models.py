@@ -205,7 +205,7 @@ class Order(models.Model):
         verbose_name='способ оплаты',
         max_length=2,
         choices=PAYMENT_METHODS,
-        default=ONLINE,
+        default=OFFLINE,
         db_index=True,
     )
 
