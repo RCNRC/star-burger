@@ -86,15 +86,8 @@ def register_order(request):
         order_to_serialize['phonenumber'] = data['phonenumber']
 
         serializer = OrderSerializer(data=order_to_serialize)
-        if serializer.is_valid():
-            return Response(
-                serializer.data,
-                status=status.HTTP_200_OK,
-            )
-        return Response(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     except Product.DoesNotExist:
         return Response(
             {'error': f'products: Invalid primary key {item["product"]}'},
