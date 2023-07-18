@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
 
-from .models import Order, OrderItem, Product
+from .models import OrderItem, Product
 from .serializers import OrderDeserializer, OrderSerializer
 
 
@@ -68,15 +68,9 @@ def register_order(request):
 
     deserializer = OrderDeserializer(data=data)
     deserializer.is_valid(raise_exception=True)
+    order = deserializer.save()
 
     try:
-        order = Order.objects.create(
-            address=data['address'],
-            firstname=data['firstname'],
-            lastname=data['lastname'],
-            phonenumber=data['phonenumber'],
-        )
-
         for item in data['products']:
             product = Product.objects.get(
                 id=item['product']
