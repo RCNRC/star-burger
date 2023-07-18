@@ -69,6 +69,7 @@ def register_order(request):
     deserializer = OrderDeserializer(data=data)
     deserializer.is_valid(raise_exception=True)
     order = deserializer.save()
+    print('AAA')
 
     try:
         for item in data['products']:
@@ -88,11 +89,6 @@ def register_order(request):
         serializer = OrderSerializer(data=order_to_serialize)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    except Product.DoesNotExist:
-        return Response(
-            {'error': f'products: Invalid primary key {item["product"]}'},
-            status=status.HTTP_200_OK,
-        )
     except Exception:
         return Response(
             {'error': 'bad request'},

@@ -1,5 +1,12 @@
-from rest_framework import serializers
-from .models import Order
+from rest_framework import serializers, status
+from rest_framework.exceptions import APIException
+from .models import Order, Product
+
+
+class ProductsValidationException(APIException):
+    status_code = status.HTTP_200_OK
+    default_detail = 'Invalid primary key'
+
 
 
 class OrderDeserializer(serializers.ModelSerializer):
@@ -9,8 +16,19 @@ class OrderDeserializer(serializers.ModelSerializer):
         return Order.objects.create(**validated_data)
 
     def save(self, **kwargs):
-        if 'products' in self.validated_data:
-            del self.validated_data['products']
+        try:
+            if 'products' in self.validated_data:
+                for item in self.validated_data['products']:
+                    Product.objects.get(
+                        id=item['product']
+                    )
+                del self.validated_data['products']
+        except Product.DoesNotExist as exception:
+            raise ProductsValidationException(
+                detail={
+                    'error': f'products: Invalid primary key {item["product"]}'
+                },
+            ) from exception
         return super().save()
 
     class Meta:
