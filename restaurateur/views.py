@@ -6,7 +6,7 @@ from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import views as auth_views, authenticate, login
-from django.db.models import F
+from django.db.models import F, Q
 from environs import Env
 from sql_util.utils import SubquerySum
 from geopy import distance
@@ -136,7 +136,7 @@ def fetch_coordinates(apikey, address):
 def view_orders(request):
     yandex_api_key = env('YANDEX_API_KEY')
 
-    orders = Order.objects.all()\
+    orders = Order.objects.filter(~Q(status='CL'))\
         .prefetch_related('products__item__menu_items__restaurant')
     for order in orders:
         order_coordinates = fetch_coordinates(yandex_api_key, order.address)
