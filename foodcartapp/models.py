@@ -139,9 +139,11 @@ class Order(models.Model):
 
     ONLINE = 'ON'
     OFFLINE = 'OF'
+    NOT_SPECIFIED = 'NS'
     PAYMENT_METHODS = [
         (ONLINE, 'Онлайн'),
         (OFFLINE, 'Наличными'),
+        (NOT_SPECIFIED, 'Не указано')
     ]
 
     address = models.CharField(
@@ -204,7 +206,7 @@ class Order(models.Model):
         verbose_name='способ оплаты',
         max_length=2,
         choices=PAYMENT_METHODS,
-        default=OFFLINE,
+        default=NOT_SPECIFIED,
         db_index=True,
     )
 
