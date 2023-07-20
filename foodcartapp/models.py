@@ -169,7 +169,7 @@ class Order(models.Model):
     selected_restaurant = models.ForeignKey(
         Restaurant,
         related_name='restaurant_items',
-        verbose_name="ресторан",
+        verbose_name="выбранный ресторан",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
