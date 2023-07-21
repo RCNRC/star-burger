@@ -36,23 +36,20 @@ class OrderDeserializer(serializers.ModelSerializer):
     products = serializers.ListField(allow_empty=False)
 
     def create(self, validated_data):
-        return Order.objects.create(**validated_data)
-
-    def save(self, **kwargs):
         try:
-            if 'products' in self.validated_data:
-                for item in self.validated_data['products']:
+            if 'products' in validated_data:
+                for item in validated_data['products']:
                     Product.objects.get(
                         id=item['product']
                     )
-                del self.validated_data['products']
+                del validated_data['products']
         except Product.DoesNotExist as exception:
             raise ProductsValidationException(
                 detail={
                     'error': f'products: Invalid primary key {item["product"]}'
                 },
             ) from exception
-        return super().save()
+        return Order.objects.create(**validated_data)
 
     class Meta:
         model = Order
