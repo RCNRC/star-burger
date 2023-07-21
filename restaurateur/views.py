@@ -143,37 +143,50 @@ def view_orders(request):
                 F('products__previous_price')*F('products__count')
             ),
         )
-    for order in orders:
-        order_coordinates = fetch_coordinates(yandex_api_key, order.address)
-        order_restaurants = set()
-        order_items = order.products.all()
-        for order_item in order_items:
-            for menu_item in order_item.item.menu_items.all():
-                if (menu_item.restaurant, ) not in order_restaurants:
-                    restaurant_coordinates = fetch_coordinates(
-                        yandex_api_key, menu_item.restaurant.address
-                    )
-                    if order_coordinates and restaurant_coordinates:
-                        if restaurant_coordinates != order_coordinates:
-                            distance_restaurant_order = distance.distance(
-                                restaurant_coordinates[::-1],
-                                order_coordinates[::-1],
-                            )
-                        else:
-                            distance_restaurant_order = -1
-                    else:
-                        distance_restaurant_order = 0
 
-                    order_restaurants.add((
-                        menu_item.restaurant,
-                        distance_restaurant_order,
-                    ))
-        order_restaurants = list(order_restaurants)
-        order_restaurants = sorted(
-            order_restaurants,
-            key=lambda restaurant: restaurant[1] if restaurant[1] else 0
-        )
-        order.restaurants = order_restaurants
+    for order in orders:
+        try:
+            order_coordinates = fetch_coordinates(
+                yandex_api_key,
+                order.address,
+            )
+            order_restaurants = set()
+            order_items = order.products.all()
+            for iters, order_item in enumerate(order_items):
+                new_order_restaurants = set()
+                for menu_item in order_item.item.menu_items.all():
+                    if (menu_item.restaurant, ) not in new_order_restaurants:
+                        restaurant_coordinates = fetch_coordinates(
+                            yandex_api_key, menu_item.restaurant.address
+                        )
+                        if order_coordinates and restaurant_coordinates:
+                            if restaurant_coordinates != order_coordinates:
+                                distance_restaurant_order = distance.distance(
+                                    restaurant_coordinates[::-1],
+                                    order_coordinates[::-1],
+                                )
+                            else:
+                                distance_restaurant_order = -1
+                        else:
+                            distance_restaurant_order = 0
+
+                        new_order_restaurants.add((
+                            menu_item.restaurant,
+                            distance_restaurant_order,
+                        ))
+                order_restaurants = order_restaurants.intersection(
+                    new_order_restaurants
+                ) if iters > 0 else new_order_restaurants
+                if not order_restaurants:
+                    break
+            order_restaurants = list(order_restaurants)
+            order_restaurants = sorted(
+                order_restaurants,
+                key=lambda restaurant: restaurant[1] if restaurant[1] else 0
+            )
+            order.restaurants = order_restaurants
+        except Exception:
+            pass
 
     return render(request, template_name='order_items.html', context={
         'order_items': orders,

@@ -80,8 +80,7 @@ def register_order(request):
         serializer = OrderSerializer(data=order.__dict__)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    except Exception as exception:
-        print(exception)
+    except Exception:
         order.delete()
         return Response(
             {'error': 'bad request'},
