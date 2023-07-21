@@ -137,7 +137,12 @@ def view_orders(request):
     yandex_api_key = env('YANDEX_API_KEY')
 
     orders = Order.objects.filter(~Q(status='CL'))\
-        .prefetch_related('products__item__menu_items__restaurant')
+        .prefetch_related('products__item__menu_items__restaurant')\
+        .annotate(
+            cost=SubquerySum(
+                F('products__previous_price')*F('products__count')
+            ),
+        )
     for order in orders:
         order_coordinates = fetch_coordinates(yandex_api_key, order.address)
         order_restaurants = set()
@@ -169,10 +174,6 @@ def view_orders(request):
             key=lambda restaurant: restaurant[1] if restaurant[1] else 0
         )
         order.restaurants = order_restaurants
-
-    orders.annotate(
-        cost=SubquerySum(F('products__previous_price')*F('products__count')),
-    )
 
     return render(request, template_name='order_items.html', context={
         'order_items': orders,

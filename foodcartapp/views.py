@@ -5,8 +5,8 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
 
-from .models import OrderItem, Product
-from .serializers import OrderDeserializer, OrderSerializer
+from .models import Product
+from .serializers import OrderDeserializer, OrderSerializer, OrderItemDeserializer
 
 
 def banners_list_api(request):
@@ -72,20 +72,17 @@ def register_order(request):
 
     try:
         for item in data['products']:
-            product = Product.objects.get(
-                id=item['product']
-            )
-            OrderItem.objects.create(
-                item=product,
-                count=item['quantity'],
-                order=order,
-                previous_price=product.price,
-            )
+            item['order_id'] = order.id
+            order_item_deserializer = OrderItemDeserializer(data=item)
+            order_item_deserializer.is_valid(raise_exception=True)
+            order_item_deserializer.save()
 
-        serializer = OrderSerializer(data=order)
+        serializer = OrderSerializer(data=order.__dict__)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    except Exception:
+    except Exception as exception:
+        print(exception)
+        order.delete()
         return Response(
             {'error': 'bad request'},
             status=status.HTTP_200_OK,
