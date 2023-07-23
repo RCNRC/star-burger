@@ -195,7 +195,7 @@ class Order(models.Model):
         blank=True,
     )
 
-    deliver_at = models.DateTimeField(
+    delivered_at = models.DateTimeField(
         verbose_name='время доставки',
         db_index=True,
         null=True,
