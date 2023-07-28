@@ -27,28 +27,33 @@ class OrderItemDeserializer(serializers.ModelSerializer):
         ]
 
 
-class ProductsValidationException(APIException):
-    status_code = status.HTTP_200_OK
-    default_detail = 'Invalid primary key'
+#class ProductsValidationException(APIException):
+#    status_code = status.HTTP_200_OK
+#    default_detail = 'Invalid primary key'
 
 
 class OrderDeserializer(serializers.ModelSerializer):
-    products = serializers.ListField(allow_empty=False)
+    #products = serializers.ListField(allow_empty=False)
+    #products = ProductSerializer(many=True, read_only=True)
 
     def create(self, validated_data):
-        try:
-            if 'products' in validated_data:
-                for item in validated_data['products']:
-                    Product.objects.get(
-                        id=item['product']
-                    )
-                del validated_data['products']
-        except Product.DoesNotExist as exception:
-            raise ProductsValidationException(
-                detail={
-                    'error': f'products: Invalid primary key {item["product"]}'
-                },
-            ) from exception
+    #    try:
+    #        if 'products' in validated_data:
+    #            for item in validated_data['products']:
+    #                Product.objects.get(
+    #                    id=item['product']
+    #                )
+    #            del validated_data['products']
+    #    except Product.DoesNotExist as exception:
+    #        raise ProductsValidationException(
+    #            detail={
+    #                'error': f'products: Invalid primary key {item["product"]}'
+    #            },
+    #        ) from exception
+        #print(validated_data)
+        #if 'products' in validated_data:
+        #    for item in validated_data['products']:
+        #        print(item)
         return Order.objects.create(**validated_data)
 
     class Meta:
@@ -58,7 +63,7 @@ class OrderDeserializer(serializers.ModelSerializer):
             'firstname',
             'lastname',
             'phonenumber',
-            'products',
+            #'products',
         ]
 
 
