@@ -114,7 +114,7 @@ def fetch_coordinates(apikey, address):
                 'apikey': apikey,
                 'format': "json",
             },
-            timeout=1,
+            timeout=10,
         )
         response.raise_for_status()
         found_places = response.json()['response']['GeoObjectCollection']['featureMember']
@@ -144,49 +144,57 @@ def view_orders(request):
             ),
         )
 
+
+
+    viewed_restaurants = dict()  # key = name, value = object
+
     for order in orders:
         try:
+            viewed_restaurants_names = set()
+
+            order_items = order.products.all()
+            for iters, order_item in enumerate(order_items):
+                items_viewed_restaurants_names = set()
+                for menu_item in order_item.item.menu_items.all():
+                    if menu_item.restaurant.name not in items_viewed_restaurants_names:
+                        viewed_restaurants[menu_item.restaurant.name] = menu_item.restaurant
+                        items_viewed_restaurants_names.add(
+                            menu_item.restaurant.name
+                        )
+                viewed_restaurants_names = viewed_restaurants_names\
+                    .intersection(items_viewed_restaurants_names)\
+                    if iters > 0 else items_viewed_restaurants_names
+
             order_coordinates = fetch_coordinates(
                 yandex_api_key,
                 order.address,
             )
-            order_restaurants = set()
-            order_items = order.products.all()
-            for iters, order_item in enumerate(order_items):
-                new_order_restaurants = set()
-                for menu_item in order_item.item.menu_items.all():
-                    if (menu_item.restaurant, ) not in new_order_restaurants:
-                        restaurant_coordinates = fetch_coordinates(
-                            yandex_api_key, menu_item.restaurant.address
-                        )
-                        if order_coordinates and restaurant_coordinates:
-                            if restaurant_coordinates != order_coordinates:
-                                distance_restaurant_order = distance.distance(
-                                    restaurant_coordinates[::-1],
-                                    order_coordinates[::-1],
-                                )
-                            else:
-                                distance_restaurant_order = -1
-                        else:
-                            distance_restaurant_order = 0
-
-                        new_order_restaurants.add((
-                            menu_item.restaurant,
-                            distance_restaurant_order,
-                        ))
-                order_restaurants = order_restaurants.intersection(
-                    new_order_restaurants
-                ) if iters > 0 else new_order_restaurants
-                if not order_restaurants:
-                    break
-            order_restaurants = list(order_restaurants)
-            order_restaurants = sorted(
-                order_restaurants,
-                key=lambda restaurant: restaurant[1] if restaurant[1] else 0
-            )
+            order_restaurants = []
+            for restaurant_name in viewed_restaurants_names:
+                restaurant = viewed_restaurants[restaurant_name]
+                restaurant_coordinates = fetch_coordinates(
+                    yandex_api_key, restaurant.address
+                )
+                print(restaurant_coordinates)
+                distance_restaurant_order = 0
+                if order_coordinates and restaurant_coordinates:
+                    if order_coordinates[0] and order_coordinates[1]\
+                       and restaurant_coordinates[0]\
+                       and restaurant_coordinates[1]:
+                        distance_restaurant_order = -1
+                        if restaurant_coordinates != order_coordinates:
+                            distance_restaurant_order = distance.distance(
+                                restaurant_coordinates[::-1],
+                                order_coordinates[::-1],
+                            )
+                order_restaurants.append((
+                    restaurant,
+                    distance_restaurant_order,
+                ))
             order.restaurants = order_restaurants
         except Exception:
             pass
+
 
     return render(request, template_name='order_items.html', context={
         'order_items': orders,

@@ -69,7 +69,6 @@ def register_order(request):
     deserializer = OrderDeserializer(data=data)
     deserializer.is_valid(raise_exception=True)
     order = deserializer.save()
-    print()
 
     try:
         data_to_serialize = order.__dict__
