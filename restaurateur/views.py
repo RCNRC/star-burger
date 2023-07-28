@@ -6,8 +6,8 @@ from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import views as auth_views, authenticate, login
+from django.conf import settings
 from django.db.models import F, Q
-from environs import Env
 from sql_util.utils import SubquerySum
 from geopy import distance
 
@@ -17,9 +17,6 @@ from geo_data.models import GeoData
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'star_burger.settings'
 setup()
-
-env = Env()
-env.read_env()
 
 
 class Login(forms.Form):
@@ -134,8 +131,6 @@ def fetch_coordinates(apikey, address):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    yandex_api_key = env('YANDEX_API_KEY')
-
     orders = Order.objects.filter(~Q(status='CL'))\
         .prefetch_related('products__item__menu_items__restaurant')\
         .annotate(
@@ -164,7 +159,7 @@ def view_orders(request):
                     if iters > 0 else items_viewed_restaurants_names
 
             order_coordinates = fetch_coordinates(
-                yandex_api_key,
+                settings.YANDEX_API_KEY,
                 order.address,
             )
             order_restaurants = []
@@ -172,7 +167,7 @@ def view_orders(request):
                 try:
                     restaurant = viewed_restaurants[restaurant_name]
                     restaurant_coordinates = fetch_coordinates(
-                        yandex_api_key, restaurant.address
+                        settings.YANDEX_API_KEY, restaurant.address
                     )
                     distance_restaurant_order = 0
                     if order_coordinates and restaurant_coordinates:
