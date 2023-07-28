@@ -144,9 +144,7 @@ def view_orders(request):
             ),
         )
 
-
-
-    viewed_restaurants = dict()  # key = name, value = object
+    viewed_restaurants = {}  # key = name, value = object
 
     for order in orders:
         try:
@@ -171,26 +169,29 @@ def view_orders(request):
             )
             order_restaurants = []
             for restaurant_name in viewed_restaurants_names:
-                restaurant = viewed_restaurants[restaurant_name]
-                restaurant_coordinates = fetch_coordinates(
-                    yandex_api_key, restaurant.address
-                )
-                print(restaurant_coordinates)
-                distance_restaurant_order = 0
-                if order_coordinates and restaurant_coordinates:
-                    if order_coordinates[0] and order_coordinates[1]\
-                       and restaurant_coordinates[0]\
-                       and restaurant_coordinates[1]:
-                        distance_restaurant_order = -1
-                        if restaurant_coordinates != order_coordinates:
-                            distance_restaurant_order = distance.distance(
-                                restaurant_coordinates[::-1],
-                                order_coordinates[::-1],
-                            )
-                order_restaurants.append((
-                    restaurant,
-                    distance_restaurant_order,
-                ))
+                try:
+                    restaurant = viewed_restaurants[restaurant_name]
+                    restaurant_coordinates = fetch_coordinates(
+                        yandex_api_key, restaurant.address
+                    )
+                    print(restaurant_coordinates)
+                    distance_restaurant_order = 0
+                    if order_coordinates and restaurant_coordinates:
+                        if order_coordinates[0] and order_coordinates[1]\
+                           and restaurant_coordinates[0]\
+                           and restaurant_coordinates[1]:
+                            distance_restaurant_order = -1
+                            if restaurant_coordinates != order_coordinates:
+                                distance_restaurant_order = distance.distance(
+                                    restaurant_coordinates[::-1],
+                                    order_coordinates[::-1],
+                                )
+                    order_restaurants.append((
+                        restaurant,
+                        distance_restaurant_order,
+                    ))
+                except Exception:
+                    pass
             order.restaurants = order_restaurants
         except Exception:
             pass
