@@ -71,12 +71,6 @@ def register_order(request):
     order = deserializer.save()
 
     try:
-        for item in data['products']:
-            item['order_id'] = order.id
-            order_item_deserializer = OrderItemDeserializer(data=item)
-            order_item_deserializer.is_valid(raise_exception=True)
-            order_item_deserializer.save()
-
         serializer = OrderSerializer(data=order.__dict__)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
