@@ -60,15 +60,3 @@ class OrderDeserializer(serializers.ModelSerializer):
             'phonenumber',
             'products',
         )
-
-
-class OrderSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Order
-        fields = [
-            'id',
-            'firstname',
-            'lastname',
-            'address',
-        ]

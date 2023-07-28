@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from .models import Product
-from .serializers import OrderDeserializer, OrderSerializer, OrderItemDeserializer
+from .serializers import OrderDeserializer
 
 
 def banners_list_api(request):
@@ -69,12 +69,20 @@ def register_order(request):
     deserializer = OrderDeserializer(data=data)
     deserializer.is_valid(raise_exception=True)
     order = deserializer.save()
+    print()
 
     try:
-        serializer = OrderSerializer(data=order.__dict__)
+        data_to_serialize = order.__dict__
+        data_to_serialize['phonenumber'] = order.phonenumber.raw_input
+        data_to_serialize['products'] = [
+            {'product': product.item.id, 'quantity': product.count}
+            for product in order.products.all()
+        ]
+        serializer = OrderDeserializer(data=data_to_serialize)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    except Exception:
+    except Exception as exception:
+        print(exception)
         return Response(
             {'error': 'bad request'},
             status=status.HTTP_200_OK,
