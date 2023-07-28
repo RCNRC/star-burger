@@ -174,7 +174,6 @@ def view_orders(request):
                     restaurant_coordinates = fetch_coordinates(
                         yandex_api_key, restaurant.address
                     )
-                    print(restaurant_coordinates)
                     distance_restaurant_order = 0
                     if order_coordinates and restaurant_coordinates:
                         if order_coordinates[0] and order_coordinates[1]\
@@ -192,7 +191,10 @@ def view_orders(request):
                     ))
                 except Exception:
                     pass
-            order.restaurants = order_restaurants
+            order.restaurants = sorted(
+                order_restaurants,
+                key=lambda restaurant: restaurant[1]
+            )
         except Exception:
             pass
 
