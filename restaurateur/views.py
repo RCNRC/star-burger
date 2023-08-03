@@ -99,41 +99,14 @@ def view_restaurants(request):
 
 
 def fetch_coordinates(apikey, address):
-    try:
-        geo_data = GeoData.objects.get(address=address)
-        lon = geo_data.longitude
-        lat = geo_data.latitude
-    except GeoData.DoesNotExist:
-        base_url = "https://geocode-maps.yandex.ru/1.x"
-        response = requests.get(
-            base_url, params={
-                'geocode': address,
-                'apikey': apikey,
-                'format': "json",
-            },
-            timeout=10,
-        )
-        response.raise_for_status()
-        found_places = response.json()['response']['GeoObjectCollection']['featureMember']
-
-        if not found_places:
-            return None
-
-        most_relevant = found_places[0]
-        lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
-        GeoData.objects.create(
-            address=address,
-            latitude=lat,
-            longitude=lon,
-        )
-    return lon, lat
+    geo_data = GeoData.get_or_create_by_address(address, apikey)
+    return (geo_data.longitude, geo_data.latitude) if geo_data else None
 
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     orders = Order.objects.filter(~Q(status='CL'))\
         .prefetch_related('products__product__menu_items__restaurant')
-
 
     viewed_restaurants = {}  # key = name, value = object
 
@@ -160,12 +133,12 @@ def view_orders(request):
             )
             order_restaurants = []
             for restaurant_name in viewed_restaurants_names:
+                distance_restaurant_order = 0
                 try:
                     restaurant = viewed_restaurants[restaurant_name]
                     restaurant_coordinates = fetch_coordinates(
                         settings.YANDEX_API_KEY, restaurant.address
                     )
-                    distance_restaurant_order = 0
                     if order_coordinates and restaurant_coordinates:
                         if order_coordinates[0] and order_coordinates[1]\
                            and restaurant_coordinates[0]\
@@ -189,9 +162,11 @@ def view_orders(request):
         except Exception:
             pass
 
-    orders.annotate(cost=SubquerySum(
+    orders.annotate(
+        cost=SubquerySum(
             F('products__previous_price')*F('products__quantity')
-    ),)
+        ),
+    )
 
     return render(request, template_name='order_items.html', context={
         'order_items': orders,
