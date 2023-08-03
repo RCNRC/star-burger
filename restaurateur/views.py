@@ -132,10 +132,10 @@ def fetch_coordinates(apikey, address):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     orders = Order.objects.filter(~Q(status='CL'))\
-        .prefetch_related('products__item__menu_items__restaurant')\
+        .prefetch_related('products__product__menu_items__restaurant')\
         .annotate(
             cost=SubquerySum(
-                F('products__previous_price')*F('products__count')
+                F('products__previous_price')*F('products__quantity')
             ),
         )
 
@@ -148,7 +148,7 @@ def view_orders(request):
             order_items = order.products.all()
             for iters, order_item in enumerate(order_items):
                 items_viewed_restaurants_names = set()
-                for menu_item in order_item.item.menu_items.all():
+                for menu_item in order_item.product.menu_items.all():
                     if menu_item.restaurant.name not in items_viewed_restaurants_names:
                         viewed_restaurants[menu_item.restaurant.name] = menu_item.restaurant
                         items_viewed_restaurants_names.add(

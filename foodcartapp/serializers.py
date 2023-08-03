@@ -1,32 +1,16 @@
-from rest_framework import serializers, status
-from rest_framework.exceptions import APIException
-from .models import Order, Product, OrderItem
-
-
-class ProductsValidationException(APIException):
-    status_code = status.HTTP_200_OK
-    default_detail = 'Invalid primary key'
+from rest_framework import serializers
+from .models import Order, OrderItem, Product
 
 
 class OrderItemDeserializer(serializers.ModelSerializer):
-    product = serializers.IntegerField()
-    quantity = serializers.IntegerField()
 
     def create(self, validated_data):
-        product_id = validated_data['product']
-        try:
-            product = Product.objects.get(id=product_id)
-        except Product.DoesNotExist as exception:
-            raise ProductsValidationException(
-                detail={
-                    'error': f'products: Invalid primary key {product_id}'
-                },
-            ) from exception
+        product = validated_data['product']
         return OrderItem.objects.create(
-            item=product,
+            product=product,
             previous_price=product.price,
-            count=validated_data['quantity'],
-            order=validated_data['order'],
+            quantity=validated_data['quantity'],
+            order=Order.objects.get(id=self.__dict__['initial_data']['order']),
         )
 
     class Meta:
@@ -34,18 +18,18 @@ class OrderItemDeserializer(serializers.ModelSerializer):
         fields = (
             'product',
             'quantity',
-            'order',
         )
 
 
 class OrderDeserializer(serializers.ModelSerializer):
-    products = serializers.ListField(allow_empty=False)
+    products = OrderItemDeserializer(many=True)
 
     def create(self, validated_data):
         products = validated_data.pop('products')
         order = Order.objects.create(**validated_data)
         for product in products:
             product['order'] = order.id
+            product['product'] = product['product'].id
             order_item_deserializer = OrderItemDeserializer(data=product)
             order_item_deserializer.is_valid(raise_exception=True)
             order_item_deserializer.save()
@@ -54,9 +38,10 @@ class OrderDeserializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = (
+            'products',
             'address',
             'firstname',
             'lastname',
             'phonenumber',
-            'products',
         )
+        depth = 1

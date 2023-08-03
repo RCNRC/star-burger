@@ -74,7 +74,7 @@ def register_order(request):
         data_to_serialize = order.__dict__
         data_to_serialize['phonenumber'] = order.phonenumber.raw_input
         data_to_serialize['products'] = [
-            {'product': product.item.id, 'quantity': product.count}
+            {'product': product.product.id, 'quantity': product.quantity}
             for product in order.products.all()
         ]
         serializer = OrderDeserializer(data=data_to_serialize)

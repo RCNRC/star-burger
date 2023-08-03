@@ -219,7 +219,7 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    item = models.ForeignKey(
+    product = models.ForeignKey(
         to=Product,
         verbose_name='продукт',
         related_name='products',
@@ -231,7 +231,7 @@ class OrderItem(models.Model):
         max_digits=7,
         validators=[MinValueValidator(0)],
     )
-    count = models.IntegerField(
+    quantity = models.IntegerField(
         verbose_name='количество',
         validators=[MinValueValidator(1)],
     )
