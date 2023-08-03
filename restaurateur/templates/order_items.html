@@ -52,11 +52,9 @@
                   <li>
                     <details>
                       {% if restaurant.1 %}
-                        {% if restaurant.1 == -1 %}
-                          <summary>{{ restaurant.0.name }} - то же самое место</summary>
-                        {% else %}
-                          <summary>{{ restaurant.0.name }} - {{ restaurant.1 }}</summary>
-                        {% endif %}
+                        <summary>{{ restaurant.0.name }} - {{ restaurant.1 }}</summary>
+                      {% elif restaurant.1 == 0 %}
+                        <summary>{{ restaurant.0.name }} - то же самое место</summary>
                       {% else %}
                         <summary>{{ restaurant.0.name }} - ошибка определения координат</summary>
                       {% endif %}

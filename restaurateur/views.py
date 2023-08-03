@@ -1,5 +1,5 @@
 import os
-import requests
+import math
 from django import forms, setup
 from django.shortcuts import redirect, render
 from django.views import View
@@ -105,6 +105,8 @@ def fetch_coordinates(apikey, address):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
+    max_distance = 2 * math.pi * 6.4 * 10**3  # Earth's circumference
+
     orders = Order.objects.filter(~Q(status='CL'))\
         .prefetch_related('products__product__menu_items__restaurant')
 
@@ -133,7 +135,7 @@ def view_orders(request):
             )
             order_restaurants = []
             for restaurant_name in viewed_restaurants_names:
-                distance_restaurant_order = 0
+                distance_restaurant_order = None
                 try:
                     restaurant = viewed_restaurants[restaurant_name]
                     restaurant_coordinates = fetch_coordinates(
@@ -143,7 +145,7 @@ def view_orders(request):
                         if order_coordinates[0] and order_coordinates[1]\
                            and restaurant_coordinates[0]\
                            and restaurant_coordinates[1]:
-                            distance_restaurant_order = -1
+                            distance_restaurant_order = 0
                             if restaurant_coordinates != order_coordinates:
                                 distance_restaurant_order = distance.distance(
                                     restaurant_coordinates[::-1],
@@ -157,7 +159,8 @@ def view_orders(request):
                     pass
             order.restaurants = sorted(
                 order_restaurants,
-                key=lambda restaurant: restaurant[1]
+                key=lambda restaurant: max_distance
+                if restaurant[1] is None else restaurant[1]
             )
         except Exception:
             pass
