@@ -132,12 +132,8 @@ def fetch_coordinates(apikey, address):
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
     orders = Order.objects.filter(~Q(status='CL'))\
-        .prefetch_related('products__product__menu_items__restaurant')\
-        .annotate(
-            cost=SubquerySum(
-                F('products__previous_price')*F('products__quantity')
-            ),
-        )
+        .prefetch_related('products__product__menu_items__restaurant')
+
 
     viewed_restaurants = {}  # key = name, value = object
 
@@ -193,6 +189,9 @@ def view_orders(request):
         except Exception:
             pass
 
+    orders.annotate(cost=SubquerySum(
+            F('products__previous_price')*F('products__quantity')
+    ),)
 
     return render(request, template_name='order_items.html', context={
         'order_items': orders,
