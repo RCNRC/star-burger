@@ -8,6 +8,7 @@ from django.contrib.auth.decorators import user_passes_test
 from django.contrib.auth import views as auth_views, authenticate, login
 from django.conf import settings
 from django.db.models import F, Q
+from django.http import HttpResponse
 from sql_util.utils import SubquerySum
 from geopy import distance
 

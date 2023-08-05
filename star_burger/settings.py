@@ -42,6 +42,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddlewareExcluding404',
 ]
 
 ROOT_URLCONF = 'star_burger.urls'
@@ -121,10 +123,21 @@ INTERNAL_IPS = [
     '127.0.0.1'
 ]
 
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "assets"),
     os.path.join(BASE_DIR, "bundles"),
+    os.path.join(BASE_DIR, "templates"),
+    os.path.join(BASE_DIR, "restaurateur/templates"),
+    os.path.join(BASE_DIR, "foodcartapp/static"),
 ]
 
 YANDEX_API_KEY = env('YANDEX_API_KEY')
+
+ROLLBAR = {
+    'access_token': env('ROLLBAR_ACCESS_TOKEN'),
+    'environment': 'development' if env.bool('ROLLBAR_ENVIRONMENT_DEVELOPMENT', False) else 'production',
+    'code_version': '1.0',
+    'root': BASE_DIR,
+}
