@@ -9,3 +9,6 @@ requests==2.31.0
 geopy==2.3.0
 django-sql-utils==0.6.1
 rollbar==0.16.3
+gunicorn==21.2.0
+psycopg2==2.9.7
+dj-database-url==2.0.0

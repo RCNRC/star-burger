@@ -150,6 +150,7 @@ Parcel будет следить за файлами в каталоге `bundle
 - `YANDEX_API_KEY` - апи ключ для работы с геокодером, [кабинет разработчика](https://developer.tech.yandex.ru/) - выберите "JavaScript API и HTTP Геокодер".
 - `ROLLBAR_ACCESS_TOKEN` - токен полученный при регистрации на сайте [Rollbar](https://rollbar.com). Нужно зарегистрировать с SDK: Django.
 - `ROLLBAR_ENVIRONMENT_DEVELOPMENT` - если `True`, то настройка `environment` в [Rollbar](https://rollbar.com) будет в режиме `development`, если же `False` - `production`. По умолчянию установлен в `False`, т.е. `production`.
+- `POSTGRES_URL` - url запущенного PostgreSQL, в формате `postgres://USER:PASSWORD@HOST:PORT/NAME`, где `USER` - роль, `PASSWORD` - пароль от роли, `HOST` - ip сервера, `PORT` - порт сервера, `NAME` - название базы данных.
 
 ## Цели проекта
 
