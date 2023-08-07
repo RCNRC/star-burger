@@ -1,6 +1,8 @@
 #!/bin/bash
 set -Eeuo pipefail
 
+START_TIME="$(date)"
+
 git pull
 
 ENV_DIR="./env"
@@ -26,5 +28,16 @@ python3 manage.py migrate
 systemctl daemon-reload
 systemctl restart star-burger
 systemctl reload nginx
+
+END_TIME="$(date)"
+
+REVISION="$(git rev-parse HEAD)"
+COMMENT="$(git log --format=%B -n 1 $REVISION)"
+DIRECTORY="$(pwd)"
+LOCAL_USER="$(whoami)"
+
+echo $START_TIME
+
+curl -H "X-Rollbar-Access-Token: 8c01c4d6403944e48b6f176e3d6d7b8b" -H "Content-Type: application/json" -X POST 'https://api.rollbar.com/api/1/deploy' -d "{\"environment\": \"production\", \"revision\": \"$REVISION\", \"rollbar_name\": \"unknown\", \"local_username\": \"$LOCAL_USER\", \"comment\": \"$COMMENT\", \"status\": \"succeeded\", \"code_version\": \"$REVISION\", \"server\": {\"root\": \"file://$DIRECTORY/\"}}"
 
 echo "deploy success"
