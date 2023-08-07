@@ -5,6 +5,8 @@ import dj_database_url
 from environs import Env
 import urllib.parse
 
+from sqlalchemy import create_engine
+
 
 env = Env()
 env.read_env()
@@ -104,9 +106,7 @@ POSTGRES_URL_PARSED[2] = '@'.join([password, host])
 POSTGRES_URL_PARSED = ':'.join(POSTGRES_URL_PARSED)
 
 DATABASES = {
-    'default': dj_database_url.parse(
-        POSTGRES_URL_PARSED,
-    )
+    'default': dj_database_url.parse(POSTGRES_URL_PARSED)
 }
 
 AUTH_PASSWORD_VALIDATORS = [

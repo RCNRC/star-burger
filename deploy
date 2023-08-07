@@ -1,0 +1,30 @@
+#!/bin/bash
+set -Eeuo pipefail
+
+git pull
+
+ENV_DIR="./env"
+if [ ! -d $ENV_DIR ]
+then
+	python3 -m venv env
+fi
+
+source env/bin/activate
+apt-get install libjpeg-dev zlib1g-dev -y
+python3 -m pip install --upgrade pip
+python3 -m pip install --upgrade pillow
+python3 -m pip install -r requirements.txt
+
+apt-get install nodejs -y
+apt-get install npm -y
+
+npm ci --dev
+
+python3 manage.py collectstatic --noinput
+python3 manage.py migrate
+
+systemctl daemon-reload
+systemctl restart star-burger
+systemctl reload nginx
+
+echo "deploy success"
