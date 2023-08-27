@@ -153,7 +153,7 @@ STATICFILES_DIRS = [
 YANDEX_API_KEY = env('YANDEX_API_KEY')
 
 ROLLBAR = {
-    'access_token': env('ROLLBAR_ACCESS_TOKEN'),
+    'access_token': env('ROLLBAR_ACCESS_TOKEN', ''),
     'environment': 'development' if env.bool('ROLLBAR_ENVIRONMENT_DEVELOPMENT', False) else 'production',
     'code_version': os.popen('export HOME=/root && git config --global --add safe.directory /opt/star-burger && git rev-parse HEAD').read()[:-1],  # causes git problems
     'branch': 'main',
