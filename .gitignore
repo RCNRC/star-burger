@@ -1,8 +1,8 @@
-bundles/**
-node_modules/
+backend/bundles/**
+frontend/node_modules/
 media/
 static/
-depricated_*
+frontend/depricated_*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

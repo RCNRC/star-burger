@@ -1,0 +1,37 @@
+services:
+  backend:
+    build: ../backend/
+    container_name: backend
+    volumes:
+      - /opt/star-burger/static:/usr/src/star-burger/static
+      - /opt/star-burger/media:/usr/src/star-burger/media
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+      - frontend
+
+  frontend:
+    build: ../frontend/
+    container_name: frontend
+    volumes:
+    - /opt/star-burger/backend/bundles:/usr/src/star-burger/bundles
+
+  db:
+    restart: always
+    image: postgres:latest
+    container_name: db
+    volumes:
+    - /var/lib/postgresql/star_burger_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: "star_burger"
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "qwerty"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d star_burger"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    ports:
+      - 5438:5432
